@@ -14,7 +14,8 @@ class StudentController extends Controller
      */
     public function index()
     {
-        return view('student.listStudent');
+        $students = Student::all();
+        return view('students.index',compact('students'));
     }
 
     /**
@@ -22,7 +23,7 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view('student.addStudent');
+        return view('students.create');
     }
 
     /**
@@ -48,7 +49,7 @@ class StudentController extends Controller
             Student::create($validatedData);
 
             // 4️⃣ Redirect back with success message
-            return redirect()->back()->with('success', 'Student added successfully!');
+            return redirect()->route('students.index')->with('success', 'Student added successfully!');
     }
 
     /**
@@ -56,7 +57,8 @@ class StudentController extends Controller
      */
     public function show(string $id)
     {
-        //
+            $student = Student::findOrFail($id);
+            return view('students.show', compact('student'));
     }
 
     /**
@@ -64,7 +66,8 @@ class StudentController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $student = Student::findOrFail($id);
+        return view('students.edit', compact('student'));
     }
 
     /**
@@ -72,7 +75,18 @@ class StudentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $student = Student::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'batch' => 'required|string|max:255',
+            'email' => 'required|email',
+            'contact' => 'required|string|max:20',
+        ]);
+
+        $student->update($request->all());
+
+        return redirect()->route('students.index')->with('success', 'Student updated successfully.');
     }
 
     /**
@@ -80,6 +94,7 @@ class StudentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
-    }
+        $student = Student::findOrFail($id);
+        $student->delete();
+        return redirect()->route('students.index')->with('success', 'Student deleted successfully.');    }
 }
